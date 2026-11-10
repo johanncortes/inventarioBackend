@@ -1,0 +1,1336 @@
+[
+  {
+    "model": "inventario.categoria",
+    "pk": 1,
+    "fields": {
+      "nombre": "Instrumento",
+      "descripcion": "Aparatos de medición, como multímetros o termómetros.",
+      "usa_stock_minimo": false,
+      "usa_numero_serie": true
+    }
+  },
+  {
+    "model": "inventario.categoria",
+    "pk": 2,
+    "fields": {
+      "nombre": "Insumo",
+      "descripcion": "Materiales que se gastan con el uso, como guantes.",
+      "usa_stock_minimo": true,
+      "usa_numero_serie": false
+    }
+  },
+  {
+    "model": "inventario.categoria",
+    "pk": 3,
+    "fields": {
+      "nombre": "Equipo",
+      "descripcion": "Aparatos de laboratorio de uso general, como osciloscopios o fuentes de poder.",
+      "usa_stock_minimo": false,
+      "usa_numero_serie": true
+    }
+  },
+  {
+    "model": "inventario.categoria",
+    "pk": 4,
+    "fields": {
+      "nombre": "Reactivo",
+      "descripcion": "Sustancias químicas que se consumen en las prácticas.",
+      "usa_stock_minimo": true,
+      "usa_numero_serie": false
+    }
+  },
+  {
+    "model": "inventario.categoria",
+    "pk": 5,
+    "fields": {
+      "nombre": "Mobiliario",
+      "descripcion": "Muebles de trabajo, como mesas y bancos.",
+      "usa_stock_minimo": false,
+      "usa_numero_serie": false
+    }
+  },
+  {
+    "model": "inventario.categoria",
+    "pk": 6,
+    "fields": {
+      "nombre": "Instalación",
+      "descripcion": "Elementos fijos como llaves de gas, data o mesones.",
+      "usa_stock_minimo": false,
+      "usa_numero_serie": false
+    }
+  },
+  {
+    "model": "inventario.torre",
+    "pk": 1,
+    "fields": {
+      "letra": "B"
+    }
+  },
+  {
+    "model": "inventario.torre",
+    "pk": 2,
+    "fields": {
+      "letra": "C"
+    }
+  },
+  {
+    "model": "inventario.sala",
+    "pk": 1,
+    "fields": {
+      "torre": 1,
+      "numero": "302",
+      "codigo": "B302"
+    }
+  },
+  {
+    "model": "inventario.sala",
+    "pk": 2,
+    "fields": {
+      "torre": 1,
+      "numero": "307",
+      "codigo": "B307"
+    }
+  },
+  {
+    "model": "inventario.sala",
+    "pk": 3,
+    "fields": {
+      "torre": 1,
+      "numero": "308",
+      "codigo": "B308"
+    }
+  },
+  {
+    "model": "inventario.sala",
+    "pk": 4,
+    "fields": {
+      "torre": 2,
+      "numero": "205",
+      "codigo": "C205"
+    }
+  },
+  {
+    "model": "inventario.sala",
+    "pk": 5,
+    "fields": {
+      "torre": 2,
+      "numero": "210",
+      "codigo": "C210"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 1,
+    "fields": {
+      "nombre": "Multímetro Fluke 87V",
+      "categoria": 1,
+      "sala": 2,
+      "bodega": "Bodega 1",
+      "mueble": "Mueble 2",
+      "codigo_ubicacion": "B307-B1-M2",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "FLK-87V-2291",
+      "marca": "Fluke",
+      "proveedor": "Electrónica Industrial SpA",
+      "observacion": "Una unidad con la punta rota",
+      "stock_minimo": null,
+      "fecha_adquisicion": "2022-03-15"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 2,
+    "fields": {
+      "nombre": "Osciloscopio Rigol DS1054Z",
+      "categoria": 3,
+      "sala": 2,
+      "bodega": "Bodega 1",
+      "mueble": "Mueble 1",
+      "codigo_ubicacion": "B307-B1-M1",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "Rigol",
+      "proveedor": "Electrónica Industrial SpA",
+      "observacion": "",
+      "stock_minimo": null,
+      "fecha_adquisicion": "2025-05-20"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 3,
+    "fields": {
+      "nombre": "Soldador Weller WE1010",
+      "categoria": 3,
+      "sala": 3,
+      "bodega": "Bodega 1",
+      "mueble": "Mueble 3",
+      "codigo_ubicacion": "B308-B1-M3",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "Weller",
+      "proveedor": "",
+      "observacion": "",
+      "stock_minimo": null,
+      "fecha_adquisicion": "2026-04-10"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 4,
+    "fields": {
+      "nombre": "Arduino Uno R3",
+      "categoria": 3,
+      "sala": 3,
+      "bodega": "Bodega 2",
+      "mueble": "Mueble 1",
+      "codigo_ubicacion": "B308-B2-M1",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "Arduino",
+      "proveedor": "MCI Electronics",
+      "observacion": "",
+      "stock_minimo": null,
+      "fecha_adquisicion": "2024-11-05"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 5,
+    "fields": {
+      "nombre": "Fuente de poder GW Instek GPS-3303",
+      "categoria": 3,
+      "sala": 2,
+      "bodega": "Bodega 2",
+      "mueble": "Mueble 2",
+      "codigo_ubicacion": "B307-B2-M2",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "GPS-3303-0457",
+      "marca": "GW Instek",
+      "proveedor": "",
+      "observacion": "Unidad 0457 dada de baja por falla en el transformador",
+      "stock_minimo": null,
+      "fecha_adquisicion": "2023-08-30"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 6,
+    "fields": {
+      "nombre": "Termómetro digital",
+      "categoria": 1,
+      "sala": 5,
+      "bodega": "Bodega 1",
+      "mueble": "Mueble 1",
+      "codigo_ubicacion": "C210-B1-M1",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "",
+      "proveedor": "Instrumentos Científicos Ltda.",
+      "observacion": "",
+      "stock_minimo": null,
+      "fecha_adquisicion": "2026-08-01"
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 7,
+    "fields": {
+      "nombre": "Guantes de nitrilo (caja 100 un.)",
+      "categoria": 2,
+      "sala": 5,
+      "bodega": "Bodega 2",
+      "mueble": "Mueble 1",
+      "codigo_ubicacion": "C210-B2-M1",
+      "cantidad_disponible": 2,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "",
+      "proveedor": "Distribuidora Médica Sur",
+      "observacion": "",
+      "stock_minimo": 5,
+      "fecha_adquisicion": null
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 8,
+    "fields": {
+      "nombre": "Sulfato de cobre (frasco 500 g)",
+      "categoria": 4,
+      "sala": 5,
+      "bodega": "Bodega 2",
+      "mueble": "Mueble 3",
+      "codigo_ubicacion": "C210-B2-M3",
+      "cantidad_disponible": 6,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "",
+      "proveedor": "Química Andina SpA",
+      "observacion": "",
+      "stock_minimo": 2,
+      "fecha_adquisicion": null
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 9,
+    "fields": {
+      "nombre": "Mesa de trabajo antiestática",
+      "categoria": 5,
+      "sala": 3,
+      "bodega": "Sala",
+      "mueble": "Sin mueble",
+      "codigo_ubicacion": "B308-SALA",
+      "cantidad_disponible": 10,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 0,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "",
+      "proveedor": "",
+      "observacion": "",
+      "stock_minimo": null,
+      "fecha_adquisicion": null
+    }
+  },
+  {
+    "model": "inventario.recurso",
+    "pk": 10,
+    "fields": {
+      "nombre": "Campana de extracción de gases",
+      "categoria": 6,
+      "sala": 5,
+      "bodega": "Sala",
+      "mueble": "Sin mueble",
+      "codigo_ubicacion": "C210-SALA",
+      "cantidad_disponible": 0,
+      "cantidad_en_uso": 0,
+      "cantidad_danado": 0,
+      "cantidad_en_mantencion": 1,
+      "cantidad_dado_de_baja": 0,
+      "numero_serie": "",
+      "marca": "",
+      "proveedor": "",
+      "observacion": "En mantención anual del filtro",
+      "stock_minimo": null,
+      "fecha_adquisicion": null
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 1,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0001",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 2,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0002",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 3,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0003",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 4,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0004",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 5,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0005",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 6,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0006",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 7,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0007",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 8,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0008",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 9,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0009",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 10,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0010",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 11,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0011",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 12,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0012",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 13,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0013",
+      "estado": "danado"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 14,
+    "fields": {
+      "recurso": 1,
+      "numero": "FLK-0014",
+      "estado": "en_mantencion"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 15,
+    "fields": {
+      "recurso": 2,
+      "numero": "RIG-0001",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 16,
+    "fields": {
+      "recurso": 2,
+      "numero": "RIG-0002",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 17,
+    "fields": {
+      "recurso": 2,
+      "numero": "RIG-0003",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 18,
+    "fields": {
+      "recurso": 2,
+      "numero": "RIG-0004",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 19,
+    "fields": {
+      "recurso": 2,
+      "numero": "RIG-0005",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 20,
+    "fields": {
+      "recurso": 2,
+      "numero": "RIG-0006",
+      "estado": "en_mantencion"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 21,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0001",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 22,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0002",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 23,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0003",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 24,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0004",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 25,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0005",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 26,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0006",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 27,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0007",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 28,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0008",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 29,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0009",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 30,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0010",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 31,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0011",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 32,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0012",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 33,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0013",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 34,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0014",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 35,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0015",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 36,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0016",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 37,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0017",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 38,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0018",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 39,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0019",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 40,
+    "fields": {
+      "recurso": 3,
+      "numero": "WEL-0020",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 41,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0001",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 42,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0002",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 43,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0003",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 44,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0004",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 45,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0005",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 46,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0006",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 47,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0007",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 48,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0008",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 49,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0009",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 50,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0010",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 51,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0011",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 52,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0012",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 53,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0013",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 54,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0014",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 55,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0015",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 56,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0016",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 57,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0017",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 58,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0018",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 59,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0019",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 60,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0020",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 61,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0021",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 62,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0022",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 63,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0023",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 64,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0024",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 65,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0025",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 66,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0026",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 67,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0027",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 68,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0028",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 69,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0029",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 70,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0030",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 71,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0031",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 72,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0032",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 73,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0033",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 74,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0034",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 75,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0035",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 76,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0036",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 77,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0037",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 78,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0038",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 79,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0039",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 80,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0040",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 81,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0041",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 82,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0042",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 83,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0043",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 84,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0044",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 85,
+    "fields": {
+      "recurso": 4,
+      "numero": "ARD-0045",
+      "estado": "en_uso"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 86,
+    "fields": {
+      "recurso": 5,
+      "numero": "GPS-0452",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 87,
+    "fields": {
+      "recurso": 5,
+      "numero": "GPS-0453",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 88,
+    "fields": {
+      "recurso": 5,
+      "numero": "GPS-0454",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 89,
+    "fields": {
+      "recurso": 5,
+      "numero": "GPS-0455",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 90,
+    "fields": {
+      "recurso": 5,
+      "numero": "GPS-0456",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 91,
+    "fields": {
+      "recurso": 5,
+      "numero": "GPS-0457",
+      "estado": "dado_de_baja"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 92,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0001",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 93,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0002",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 94,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0003",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 95,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0004",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 96,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0005",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 97,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0006",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 98,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0007",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 99,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0008",
+      "estado": "disponible"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 100,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0009",
+      "estado": "danado"
+    }
+  },
+  {
+    "model": "inventario.unidad",
+    "pk": 101,
+    "fields": {
+      "recurso": 6,
+      "numero": "TER-0010",
+      "estado": "danado"
+    }
+  },
+  {
+    "model": "inventario.movimiento",
+    "pk": 1,
+    "fields": {
+      "tipo": "cambio_estado",
+      "recurso": 1,
+      "unidad": 12,
+      "usuario": 1,
+      "fecha": "2026-09-12T09:05:00-03:00",
+      "estado_anterior": "en_mantencion",
+      "estado_nuevo": "disponible",
+      "cantidad": 1,
+      "motivo": "Se cambió el fusible y quedó operativo",
+      "valor_anterior": "En mantención",
+      "valor_nuevo": "Disponible",
+      "subtipo": "",
+      "fecha_movimiento": null
+    }
+  },
+  {
+    "model": "inventario.movimiento",
+    "pk": 2,
+    "fields": {
+      "tipo": "cambio_estado",
+      "recurso": 6,
+      "unidad": 100,
+      "usuario": 1,
+      "fecha": "2026-09-25T16:40:00-03:00",
+      "estado_anterior": "disponible",
+      "estado_nuevo": "danado",
+      "cantidad": 1,
+      "motivo": "Pantalla sin lectura después del práctico",
+      "valor_anterior": "Disponible",
+      "valor_nuevo": "Dañado",
+      "subtipo": "",
+      "fecha_movimiento": null
+    }
+  },
+  {
+    "model": "inventario.movimiento",
+    "pk": 3,
+    "fields": {
+      "tipo": "cambio_estado",
+      "recurso": 6,
+      "unidad": 101,
+      "usuario": 1,
+      "fecha": "2026-09-25T16:40:00-03:00",
+      "estado_anterior": "disponible",
+      "estado_nuevo": "danado",
+      "cantidad": 1,
+      "motivo": "Pantalla sin lectura después del práctico",
+      "valor_anterior": "Disponible",
+      "valor_nuevo": "Dañado",
+      "subtipo": "",
+      "fecha_movimiento": null
+    }
+  },
+  {
+    "model": "inventario.movimiento",
+    "pk": 4,
+    "fields": {
+      "tipo": "cambio_estado",
+      "recurso": 1,
+      "unidad": 13,
+      "usuario": 1,
+      "fecha": "2026-10-01T11:20:00-03:00",
+      "estado_anterior": "disponible",
+      "estado_nuevo": "danado",
+      "cantidad": 1,
+      "motivo": "Punta rota",
+      "valor_anterior": "Disponible",
+      "valor_nuevo": "Dañado",
+      "subtipo": "",
+      "fecha_movimiento": null
+    }
+  }
+]
