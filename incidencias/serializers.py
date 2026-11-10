@@ -65,6 +65,44 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'estado': {'required': False},
         }
 
+    def validate(self, datos):
+        """Validaciones de negocio al registrar o editar una incidencia (HU-04, CA-12.4).
+
+        1. Si hay personas afectadas (hay_afectados=True), el detalle es obligatorio.
+        2. Si se selecciona una unidad, debe pertenecer al recurso indicado.
+        """
+        # En caso de PATCH, tomar los valores existentes si no vienen en la petición
+        recurso = datos.get('recurso')
+        if recurso is None and self.instance is not None:
+            recurso = self.instance.recurso
+
+        unidad = datos.get('unidad')
+        if 'unidad' not in datos and self.instance is not None:
+            unidad = self.instance.unidad
+
+        hay_afectados = datos.get('hay_afectados')
+        if hay_afectados is None and self.instance is not None:
+            hay_afectados = self.instance.hay_afectados
+
+        detalle_afectados = datos.get('detalle_afectados', '')
+        if 'detalle_afectados' not in datos and self.instance is not None:
+            detalle_afectados = self.instance.detalle_afectados
+
+        # Regla 1 (HU-04, CA-04.2): si hay personas afectadas, exigir detalle
+        if hay_afectados and not detalle_afectados.strip():
+            raise serializers.ValidationError({
+                'detalle_afectados': 'Debe especificar el detalle de las personas afectadas.'
+            })
+
+        # Regla 2 (CA-12.4): si se indica una unidad, debe pertenecer al recurso
+        if unidad is not None and recurso is not None:
+            if unidad.recurso_id != recurso.id:
+                raise serializers.ValidationError({
+                    'unidad': f'La unidad "{unidad.numero}" no pertenece al recurso {recurso.nombre}.'
+                })
+
+        return datos
+
     def get_docente_presente_nombre(self, incidencia):
         """Nombre del docente que estaba presente (None si no se indicó)."""
         return nombre_de(incidencia.docente_presente)
