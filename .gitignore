@@ -1,0 +1,23 @@
+# Entorno virtual de Python (cada uno crea el suyo con: python -m venv venv)
+venv/
+.venv/
+env/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+
+# Bases de datos locales y variables de entorno
+db.sqlite3
+db.sqlite3-journal
+.env
+
+# Archivos estáticos recolectados y subidos
+staticfiles/
+media/
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
