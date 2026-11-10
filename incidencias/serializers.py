@@ -76,9 +76,10 @@ class IncidenciaSerializer(serializers.ModelSerializer):
 
     def validate_estado(self, nuevo_estado):
         """Valida que el estado solo pueda avanzar (pendiente -> en_revision -> resuelta) y no retroceder (D8, HU-10)."""
-        # Si se está creando (self.instance is None), el default es 'pendiente'
+        # Al crear (self.instance is None) la incidencia nace SIEMPRE en 'pendiente' (D5, HU-10),
+        # aunque en el POST venga otro estado: no se puede registrar una ya resuelta.
         if self.instance is None:
-            return nuevo_estado
+            return Incidencia.PENDIENTE
 
         estado_actual = self.instance.estado
         permitidos = TRANSICIONES_VALIDAS.get(estado_actual, [])

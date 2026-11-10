@@ -12,7 +12,7 @@ listar y crear (GET y POST a /api/incidencias/), y ver y editar
 AlertaListView es una APIView porque no proviene de una tabla estática en la base de datos,
 sino que se calcula dinámicamente desde Recurso y Unidad (alertas.py).
 """
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -81,6 +81,14 @@ class AlertaListView(APIView):
         # Filtrar por tipo si viene en query_params (CA-05.2)
         tipo = request.query_params.get('tipo')
         if tipo:
+            # Un tipo mal escrito (ej: ?tipo=reposision) responde 400 con los tipos
+            # válidos, en vez de una lista vacía que parece "no hay alertas".
+            tipos_validos = ['reparacion', 'mantencion', 'reposicion']
+            if tipo not in tipos_validos:
+                return Response(
+                    {'tipo': f'Tipo no válido. Usa uno de: {", ".join(tipos_validos)}.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             alertas = [a for a in alertas if a['tipo'] == tipo]
 
         # Paginación estándar de DRF de 9 por página (CA-05.1)
