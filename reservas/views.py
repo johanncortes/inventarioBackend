@@ -42,10 +42,10 @@ class ReservaViewSet(viewsets.ModelViewSet):
     # Sin DELETE: las reservas no se borran, solo se cancelan (RNF-06).
     http_method_names = ['get', 'post', 'put', 'patch', 'head', 'options']
 
-    # Filtros del listado (M12).
+    # Filtros del listado (M12): fecha, recurso, sala y estado de cancelación.
     filterset_fields = ['fecha', 'recurso', 'sala', 'cancelada']
 
-    # Búsqueda por nombre de asignatura (?search=Química).
+    # Búsqueda por nombre de asignatura o motivo (?search=Química) (M12).
     search_fields = ['asignatura', 'motivo', 'recurso__nombre']
 
     # Orden por defecto: las más próximas primero.
