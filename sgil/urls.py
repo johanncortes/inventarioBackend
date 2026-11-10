@@ -32,6 +32,7 @@ urlpatterns = [
     # ===== Fin Usuarios e inventario (Johann) =====
 
     # ===== Reservas (Martín) =====
+    path('api/', include('reservas.urls')),
     # ===== Fin Reservas (Martín) =====
 
     # ===== Incidencias (Diego) =====
