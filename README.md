@@ -1,97 +1,4 @@
-# SGIL — Sistema de Gestión de Inventario de Laboratorios (Backend)
-
-Backend de la EVA2: API REST con Django REST Framework.
-Equipo: Johann Cortés, Martín Zepeda Puelles, Diego Cortés.
-Asignatura: Programación de Aplicaciones — Unidad III.
-
----
-
-## Cómo levantar el proyecto
-
-### Requisitos previos
-
-- Python 3.11 o 3.12 (con "Add python.exe to PATH" marcado en Windows)
-- MySQL Community Server + Workbench (servicio MySQL80 corriendo)
-
-### Windows (PowerShell)
-
-```powershell
-# 1. En MySQL Workbench: conectarse como root, abrir bd/crear_bd.sql y ejecutarlo (rayo ⚡)
-# 2. En la terminal, dentro de la carpeta del repo:
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py loaddata usuarios inventario reservas incidencias
-python manage.py runserver
-# 3. Abrir http://127.0.0.1:8000/api/ e iniciar sesión con "Log in"
-```
-
-### macOS
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-# (el resto igual que Windows)
-```
-
-### Usuarios de prueba (contraseña: `prueba123`)
-
-| Usuario | Rol |
-|---|---|
-| `pedro.soto` | Encargado |
-| `ana.morales` | Docente |
-| `luis.torres` | Departamento |
-
----
-
-## Endpoints de la API
-
-Página de inicio: **http://127.0.0.1:8000/api/**
-
-### Johann — Usuarios e inventario
-
-| Método | URL | Descripción |
-|---|---|---|
-| POST | `/api-auth/login/` | Login de la API navegable |
-| POST | `/api/token/` | Obtener token (Unidad IV) |
-| GET | `/api/usuarios/yo/` | Perfil del usuario conectado |
-| GET/POST | `/api/usuarios/` | Listar y crear usuarios (encargado) |
-| GET/POST | `/api/categorias/` | CRUD de categorías |
-| GET/POST | `/api/torres/` | CRUD de torres |
-| GET/POST | `/api/salas/` | CRUD de salas |
-| GET/POST | `/api/recursos/` | Inventario: listar y crear |
-| GET/PATCH/DELETE | `/api/recursos/{id}/` | Ficha, editar y eliminar recurso |
-| GET/POST | `/api/unidades/` | CRUD de unidades (n° de serie) |
-| GET/POST | `/api/movimientos/` | Historial y registrar movimientos |
-
-Filtros de recursos: `?search=&categoria=&sala=&sala__torre=&estado=&fecha_adquisicion__gte=&fecha_adquisicion__lte=&page=`
-
-### Martín — Reservas
-
-| Método | URL | Descripción |
-|---|---|---|
-| GET | `/api/reservas/` | Listar reservas (docente: solo las suyas; encargado y departamento: todas) |
-| POST | `/api/reservas/` | Crear reserva (docente) |
-| GET | `/api/reservas/{id}/` | Ver detalle de una reserva |
-| PATCH | `/api/reservas/{id}/` | Editar o cancelar (`{"cancelada": true}`) |
-| GET | `/api/disponibilidad/` | Unidades libres y salas disponibles en un horario |
-
-Filtros de reservas: `?fecha=&recurso=&sala=&cancelada=&search=`
-
-Parámetros de disponibilidad: `?recurso=<id>&fecha=<YYYY-MM-DD>&hora_inicio=<HH:MM>&hora_fin=<HH:MM>`
-
-### Diego — Incidencias y alertas
-
-| Método | URL | Descripción |
-|---|---|---|
-| GET/POST | `/api/incidencias/` | Listar y registrar incidencias |
-| GET/PATCH | `/api/incidencias/{id}/` | Ver y avanzar estado |
-| GET | `/api/alertas/` | Panel de alertas calculadas |
-
-Filtros de alertas: `?tipo=reparacion|mantencion|reposicion`
-
----
+# SGIL — API REST (EVA2)
 
 Backend del **Sistema de Gestión de Inventario de Laboratorios (SGIL)** del Departamento de Ciencias Básicas, hecho con **Django 4.2 + Django REST Framework 3.16 + MySQL**.
 
@@ -143,7 +50,7 @@ py -3.11 -m venv venv                 # crea el entorno virtual con Python 3.11
 venv\Scripts\activate                 # debe aparecer (venv) al inicio de la línea
 pip install -r requirements.txt
 python manage.py migrate              # crea las tablas en MySQL
-python manage.py loaddata usuarios inventario
+python manage.py loaddata usuarios inventario reservas incidencias
 python manage.py createsuperuser      # opcional, solo para entrar a /admin/
 python manage.py runserver
 ```
@@ -199,6 +106,10 @@ Los datos del inventario son los mismos del front (`src/data/` de la EVA1): 6 ca
 | Categorías, torres, salas, recursos, unidades | 403 | Solo leer | Solo leer | CRUD completo |
 | Movimientos (historial) | 403 | 403 | Solo leer | Leer y registrar (no editar ni borrar) |
 | Usuarios | 403 | Solo `/yo/` | Solo `/yo/` | Crear, cambiar rol, desactivar |
+| Reservas | 403 | Crear; ver, editar y cancelar **solo las suyas** | Leer todas | Leer todas y cancelar |
+| Disponibilidad | 403 | Consultar | Consultar | Consultar |
+| Incidencias | 403 | 403 | Solo leer | Registrar y avanzar estado (no borrar) |
+| Alertas | 403 | 403 | Leer | Leer |
 
 Los permisos están en [usuarios/permisos.py](usuarios/permisos.py).
 
@@ -271,7 +182,30 @@ Reglas que valida la API:
 <!-- ===== Reservas (Martín) ===== -->
 ### 5.3 Reservas (Martín)
 
-_Pendiente: endpoints de reservas y disponibilidad._
+| Método | URL | Qué hace |
+|---|---|---|
+| GET, POST | `/api/reservas/` | Listar reservas y crear una (HU-03, HU-07, HU-08) |
+| GET, PUT, PATCH | `/api/reservas/{id}/` | Ver, editar o cancelar (`{"cancelada": true}`). No hay DELETE (RNF-06) |
+| GET | `/api/disponibilidad/` | Unidades libres y salas libres en un horario (CA-03.2) |
+
+**Permisos por rol:**
+- **Docente:** crea reservas (el docente se asigna solo con `perform_create`) y ve, edita y cancela **solo las suyas** ("Mis reservas"). La de otro docente responde 404.
+- **Departamento:** solo lectura de todas las reservas.
+- **Encargado:** ve todas y puede **cancelarlas**; no crea reservas ni cambia sus datos.
+
+**Validaciones** (en el `validate()` del serializer, con `reservas/disponibilidad.py`):
+- La fecha no puede ser pasada (se compara con el día de hoy en Chile) y la hora de fin debe ser posterior a la de inicio (CA-03.3).
+- Se reserva al menos 1 unidad y no más de las **disponibles en ese horario**: las disponibles del recurso menos las reservadas en horarios que se cruzan (HU-07, HU-08).
+- La sala no puede estar reservada por **otro** docente en ese horario; el mismo docente sí puede reservar varios recursos para su sala (CA-08.3).
+- Al editar se valida la reserva completa (lo que cambia junto con lo que ya tenía). Una reserva cancelada no ocupa unidades ni salas.
+
+**Estado** (calculado, CA-03.4): `Programada`, `En curso`, `Realizada` o `Cancelada`.
+
+**Filtros:** `?fecha=2026-12-09`, `?recurso=6`, `?sala=5`, `?cancelada=false`, `?search=química` (asignatura, motivo o recurso), `?ordering=fecha`.
+
+**Disponibilidad:** `/api/disponibilidad/?recurso=6&fecha=2026-12-09&hora_inicio=08:30&hora_fin=10:00` → `{"unidades_disponibles": 0, "salas_libres": [...]}`.
+
+**Datos de prueba:** los termómetros (recurso 6) están todos ocupados el **09/12/2026 de 08:30 a 10:00** (Ana Morales 5 + Jorge Paredes 3, igual que en el front): si otro docente intenta reservar termómetros en ese horario, la API lo impide.
 <!-- ===== Fin Reservas (Martín) ===== -->
 
 <!-- ===== Incidencias (Diego) ===== -->
