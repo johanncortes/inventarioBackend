@@ -33,6 +33,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Paquetes externos (están en requirements.txt)
+    'rest_framework',             # Django REST Framework: serializers, vistas y API navegable
+    'rest_framework.authtoken',   # crea la tabla de tokens para /api/token/ (Unidad IV)
+    'django_filters',             # filtros con formulario en la API navegable
+
+    # ===== Usuarios e inventario (Johann) =====
+    # ===== Fin Usuarios e inventario (Johann) =====
+
+    # ===== Reservas (Martín) =====
+    # ===== Fin Reservas (Martín) =====
+
+    # ===== Incidencias (Diego) =====
+    # ===== Fin Incidencias (Diego) =====
 ]
 
 MIDDLEWARE = [
@@ -131,3 +145,29 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Configuración de Django REST Framework (se aplica a todas las vistas de la API).
+REST_FRAMEWORK = {
+    # Cómo sabe la API quién es el usuario:
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # Sesión: es la que usa el botón "Log in" de la API navegable.
+        'rest_framework.authentication.SessionAuthentication',
+        # Token: el front (Unidad IV) manda "Authorization: Token <clave>".
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    # Por defecto, todo pide haber iniciado sesión (sin sesión → 403).
+    # Cada vista agrega después sus permisos por rol (usuarios/permisos.py).
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    # Filtrar (?categoria=2), buscar (?search=) y ordenar (?ordering=) en los listados.
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    # Paginación por número de página (?page=2).
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 9,  # igual que el inventario del front (CA-01.3)
+}
