@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # ===== Usuarios e inventario (Johann) =====
     'usuarios',
+    'inventario',
     # ===== Fin Usuarios e inventario (Johann) =====
 
     # ===== Reservas (Martín) =====
