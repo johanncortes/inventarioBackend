@@ -68,7 +68,7 @@ class Reserva(models.Model):
     # Motivo u observación opcional del docente.
     motivo = models.TextField(blank=True)
 
-    # True si el encargado o el propio docente la canceló (M11).
+    # True si el encargado o el propio docente la canceló (M11, CA-03.4).
     # No se usa delete para conservar el historial (RNF-06).
     cancelada = models.BooleanField(default=False)
 
