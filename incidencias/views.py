@@ -13,6 +13,7 @@ AlertaListView es una APIView porque no proviene de una tabla estática en la ba
 sino que se calcula dinámicamente desde Recurso y Unidad (alertas.py).
 """
 from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -62,7 +63,10 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
 
 
 class AlertaListView(APIView):
-    """GET /api/alertas/: Listado de alertas calculadas (HU-05, HU-09, D11).
+    """GET /api/alertas/: Listado de alertas calculadas con filtro y paginación (HU-05, HU-09, D12).
+
+    Filtro por tipo: ?tipo=reparacion | mantencion | reposicion
+    Paginación: Usa PageNumberPagination de 9 por página; entrega 'count' (contador total de alertas).
 
     Permisos:
     - Encargado y Departamento: lectura permitida.
@@ -73,4 +77,14 @@ class AlertaListView(APIView):
 
     def get(self, request):
         alertas = calcular_alertas()
-        return Response(alertas)
+
+        # Filtrar por tipo si viene en query_params (CA-05.2)
+        tipo = request.query_params.get('tipo')
+        if tipo:
+            alertas = [a for a in alertas if a['tipo'] == tipo]
+
+        # Paginación estándar de DRF de 9 por página (CA-05.1)
+        paginador = PageNumberPagination()
+        alertas_paginadas = paginador.paginate_queryset(alertas, request, view=self)
+
+        return paginador.get_paginated_response(alertas_paginadas)
