@@ -9,15 +9,21 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.authtoken.views import obtain_auth_token
 
+from .raiz import RaizAPI
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Login y logout de la API navegable (agrega el botón "Log in" arriba a la derecha).
     path('api-auth/', include('rest_framework.urls')),
 
+    # Página de inicio con TODOS los endpoints (ver sgil/raiz.py).
+    # Va antes que los include(): Django usa la primera ruta que coincide con /api/.
+    path('api/', RaizAPI.as_view(), name='api-raiz'),
+
     # Entrega el token de un usuario: POST con username y password → {"token": "..."}.
     # Lo usará el front en la Unidad IV.
-    path('api/token/', obtain_auth_token),
+    path('api/token/', obtain_auth_token, name='token'),
 
     # ===== Usuarios e inventario (Johann) =====
     # include() suma las URLs de inventario/urls.py delante de "api/": /api/categorias/, etc.
