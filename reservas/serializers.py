@@ -147,7 +147,7 @@ class ReservaSerializer(serializers.ModelSerializer):
                 )
 
             # 4. La sala no puede estar ocupada por otro docente en ese horario (CA-08.3).
-            # El mismo docente sí puede reservar varios recursos para su sala.
+            # El mismo docente SÍ puede reservar varios recursos para su sala (CA-08.3).
             if sala:
                 docente = self.context['request'].user
                 if sala_esta_ocupada(sala, fecha, hora_inicio, hora_fin,
