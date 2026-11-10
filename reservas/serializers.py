@@ -13,6 +13,9 @@ Lógica de negocio:
 from django.utils import timezone
 from rest_framework import serializers
 
+from usuarios.models import Perfil
+from usuarios.permisos import obtener_rol
+
 from .disponibilidad import sala_esta_ocupada, unidades_disponibles
 from .models import Reserva
 
@@ -94,26 +97,62 @@ class ReservaSerializer(serializers.ModelSerializer):
 
         return 'Realizada'
 
+    def validate_cantidad(self, cantidad):
+        """Se reserva al menos 1 unidad (PositiveIntegerField acepta el 0)."""
+        if cantidad < 1:
+            raise serializers.ValidationError('Debes reservar al menos 1 unidad.')
+        return cantidad
+
     def validate(self, datos):
         """Valida los datos de la reserva antes de guardarla.
 
         Reglas (CA-03.3, HU-07, HU-08):
+        0. El encargado solo cancela las reservas de los docentes (no cambia sus datos).
         1. La fecha no puede ser pasada.
         2. La hora de fin debe ser posterior a la de inicio.
         3. Deben haber unidades disponibles del recurso en ese horario.
         4. La sala no puede estar ocupada por otro docente en ese horario.
         """
-        from django.utils.timezone import now
+        reserva_actual = self.instance  # None al crear; la reserva al editar
 
-        fecha = datos.get('fecha')
-        hora_inicio = datos.get('hora_inicio')
-        hora_fin = datos.get('hora_fin')
-        recurso = datos.get('recurso')
-        sala = datos.get('sala')
-        cantidad = datos.get('cantidad', 1)
+        # 0. El encargado lee todas y cancela (tabla de permisos del plan).
+        # Si manda otros datos distintos a los que ya tiene la reserva, se rechaza.
+        # (Un PUT de la API navegable manda todos los campos: si no cambian, no pasa nada.)
+        if reserva_actual is not None and obtener_rol(self.context['request'].user) == Perfil.ENCARGADO:
+            for campo, valor in datos.items():
+                if campo != 'cancelada' and valor != getattr(reserva_actual, campo):
+                    raise serializers.ValidationError(
+                        {campo: 'El encargado solo puede cancelar reservas, no cambiar sus datos.'}
+                    )
+
+        def valor(campo, por_defecto=None):
+            """El dato nuevo si vino en la petición; si no, el que ya tiene la reserva.
+
+            Así un PATCH con un solo campo (ej: {"cantidad": 500}) se valida
+            junto con la fecha, el horario y el recurso que la reserva ya tenía.
+            """
+            if campo in datos:
+                return datos[campo]
+            if reserva_actual is not None:
+                return getattr(reserva_actual, campo)
+            return por_defecto
+
+        fecha = valor('fecha')
+        hora_inicio = valor('hora_inicio')
+        hora_fin = valor('hora_fin')
+        recurso = valor('recurso')
+        sala = valor('sala')
+        cantidad = valor('cantidad', 1)
+
+        # Una reserva cancelada no ocupa unidades ni salas: cancelar siempre se puede,
+        # aunque la fecha ya haya pasado.
+        if valor('cancelada', False):
+            return datos
 
         # 1. La fecha no puede ser del pasado (CA-03.3).
-        if fecha and fecha < now().date():
+        # timezone.localdate() es el día de HOY en Chile. (now().date() daría el día
+        # en UTC: desde las 21:00 de Chile ya sería "mañana" y rechazaría las de hoy.)
+        if fecha and fecha < timezone.localdate():
             raise serializers.ValidationError(
                 {'fecha': 'No se puede reservar en una fecha pasada.'}
             )
@@ -132,7 +171,6 @@ class ReservaSerializer(serializers.ModelSerializer):
             # con la misma regla del front: cuenta unidades si las hay, si no usa los campos.
             # Se excluye la reserva actual al editar (self.instance), para que no
             # choque consigo misma.
-            reserva_actual = self.instance
             disponibles = unidades_disponibles(
                 recurso, fecha, hora_inicio, hora_fin, excluir=reserva_actual
             )
@@ -149,7 +187,12 @@ class ReservaSerializer(serializers.ModelSerializer):
             # 4. La sala no puede estar ocupada por otro docente en ese horario (CA-08.3).
             # El mismo docente SÍ puede reservar varios recursos para su sala (CA-08.3).
             if sala:
-                docente = self.context['request'].user
+                # El dueño de la reserva: al editar es el docente que la creó
+                # (no quien edita); al crear es el usuario conectado.
+                if reserva_actual is not None:
+                    docente = reserva_actual.docente
+                else:
+                    docente = self.context['request'].user
                 if sala_esta_ocupada(sala, fecha, hora_inicio, hora_fin,
                                      docente=docente, excluir=reserva_actual):
                     raise serializers.ValidationError(
