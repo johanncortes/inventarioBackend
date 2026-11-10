@@ -49,6 +49,56 @@
       "cancelada": true,
       "creada_en": "2026-11-09T10:10:00Z"
     }
+  },
+  {
+    "model": "reservas.reserva",
+    "pk": 4,
+    "fields": {
+      "docente": 4,
+      "recurso": 2,
+      "sala": 2,
+      "cantidad": 2,
+      "fecha": "2026-12-08",
+      "hora_inicio": "14:00:00",
+      "hora_fin": "15:30:00",
+      "asignatura": "Electrónica Básica",
+      "motivo": "Medición de señales",
+      "cancelada": false,
+      "creada_en": "2026-11-09T10:00:00Z"
+    }
+  },
+  {
+    "model": "reservas.reserva",
+    "pk": 5,
+    "fields": {
+      "docente": 2,
+      "recurso": 6,
+      "sala": 5,
+      "cantidad": 5,
+      "fecha": "2026-12-09",
+      "hora_inicio": "08:30:00",
+      "hora_fin": "10:00:00",
+      "asignatura": "Física II",
+      "motivo": "Práctico de temperatura",
+      "cancelada": false,
+      "creada_en": "2026-11-09T10:00:00Z"
+    }
+  },
+  {
+    "model": "reservas.reserva",
+    "pk": 6,
+    "fields": {
+      "docente": 5,
+      "recurso": 6,
+      "sala": 4,
+      "cantidad": 3,
+      "fecha": "2026-12-09",
+      "hora_inicio": "08:30:00",
+      "hora_fin": "10:00:00",
+      "asignatura": "Termodinámica",
+      "motivo": "Práctico de temperatura",
+      "cancelada": false,
+      "creada_en": "2026-11-09T10:00:00Z"
+    }
   }
 ]
-
