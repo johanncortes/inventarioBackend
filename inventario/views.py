@@ -9,17 +9,19 @@ las URLs (inventario/urls.py, J9).
 Permisos (RF-08, RNF-05): todos los roles leen, solo el encargado crea,
 edita y borra → EsEncargadoOSoloLectura (usuarios/permisos.py).
 """
+from django.db import transaction
 from django.db.models import Q
 from django.db.models.deletion import ProtectedError
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from usuarios.permisos import EsEncargadoOSoloLectura
+from usuarios.permisos import EsEncargadoODepartamento, EsEncargadoOSoloLectura
 
-from .models import ESTADOS, Categoria, Recurso, Sala, Torre, Unidad
+from .models import ESTADOS, Categoria, Movimiento, Recurso, Sala, Torre, Unidad
 from .serializers import (
     CategoriaSerializer,
+    MovimientoSerializer,
     RecursoSerializer,
     SalaSerializer,
     TorreSerializer,
@@ -138,6 +140,27 @@ class RecursoViewSet(viewsets.ModelViewSet):
         campo_cantidad = f'cantidad_{estado}__gt'
         return recursos.filter(Q(unidades__estado=estado) | Q(**{campo_cantidad: 0})).distinct()
 
+    def perform_update(self, serializer):
+        """Guarda los cambios del recurso y, si cambió su ubicación, lo deja en el historial (HU-11, CA-11.3).
+
+        perform_update se ejecuta al editar (PUT o PATCH). Se compara el código de
+        ubicación de antes y de después: si es distinto, se crea un Movimiento
+        de tipo "cambio_ubicacion" con las dos ubicaciones.
+        """
+        ubicacion_anterior = serializer.instance.codigo_ubicacion
+
+        # transaction.atomic(): el recurso y su movimiento se guardan juntos o no se guarda ninguno.
+        with transaction.atomic():
+            recurso = serializer.save()
+            if recurso.codigo_ubicacion != ubicacion_anterior:
+                Movimiento.objects.create(
+                    tipo=Movimiento.CAMBIO_UBICACION,
+                    recurso=recurso,
+                    usuario=self.request.user,
+                    valor_anterior=ubicacion_anterior,
+                    valor_nuevo=recurso.codigo_ubicacion,
+                )
+
     def destroy(self, request, *args, **kwargs):
         """Un recurso con reservas o incidencias no se puede borrar (on_delete=PROTECT en esas apps)."""
         return borrar_o_avisar(
@@ -157,3 +180,32 @@ class UnidadViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """Una unidad con incidencias registradas no se puede borrar."""
         return borrar_o_avisar(self.get_object(), 'No se puede eliminar: la unidad tiene incidencias registradas.')
+
+
+class MovimientoViewSet(viewsets.ModelViewSet):
+    """Historial de movimientos (HU-06) y registro de cambios de estado, entradas y salidas (HU-02, HU-14).
+
+    Permisos: el encargado lee y registra; el departamento solo lee; el docente recibe 403.
+    """
+
+    queryset = Movimiento.objects.select_related('recurso', 'unidad', 'usuario')
+    serializer_class = MovimientoSerializer
+    permission_classes = [EsEncargadoODepartamento]
+    filterset_fields = ['recurso', 'unidad', 'tipo']   # /api/movimientos/?recurso=3
+
+    # El historial no se edita ni se borra (RNF-06): solo se permite leer (GET) y
+    # registrar (POST). HEAD y OPTIONS son de solo lectura (la API navegable usa OPTIONS).
+    # Un PUT, PATCH o DELETE responde 405 "Método no permitido".
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    # El más nuevo primero (CA-06.3). ?ordering=fecha lo invierte.
+    ordering = ['-fecha']
+    ordering_fields = ['fecha']
+
+    def perform_create(self, serializer):
+        """Guarda quién registró el movimiento: el usuario conectado.
+
+        perform_create se ejecuta justo antes de guardar. Así el usuario no se
+        escribe en el formulario (no se puede registrar a nombre de otro).
+        """
+        serializer.save(usuario=self.request.user)

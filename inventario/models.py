@@ -2,14 +2,19 @@
 Modelos de la app inventario.
 
 - Categoria, Torre y Sala: la "Configuración" del sistema (RF-08, RF-10, RNF-05).
-- Recurso y Unidad: se agregan en J7. Movimiento (historial): en J14.
+- Recurso y Unidad: el inventario (RF-01, RF-02, HU-11, HU-12, HU-13).
+- Movimiento: el historial de cada recurso (HU-06, RF-13, RNF-06).
 
 Relaciones: Torre ──< Sala ──< Recurso >── Categoria
+                                  ├──< Unidad
+                                  └──< Movimiento >── User
 
-Los campos son los mismos del front (src/types/Configuracion.ts), pero en
+Los campos son los mismos del front (src/types/*.ts), pero en
 snake_case: usaStockMinimo → usa_stock_minimo.
 """
+from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 from .ubicacion import generar_codigo_ubicacion
 
@@ -230,3 +235,90 @@ class Unidad(models.Model):
 
     def __str__(self):
         return f'{self.recurso.nombre} — {self.numero}'
+
+
+class Movimiento(models.Model):
+    """Un registro del historial de un recurso (HU-06): qué pasó, cuándo, quién y por qué.
+
+    Ejemplo: "El 01/10 a las 11:20, Pedro Soto pasó 1 multímetro de Disponible
+    a Dañado porque tenía la punta rota".
+    Los registros NO se editan ni se borran (RNF-06): la vista solo permite leer y crear (J16).
+    Son los mismos campos del front (src/types/CambioEstado.ts).
+    """
+
+    # Tipos de movimiento (CA-06.1)
+    CAMBIO_ESTADO = 'cambio_estado'          # unidades pasan de un estado a otro (el total no cambia)
+    ENTRADA = 'entrada'                      # llegan unidades nuevas a "disponible"
+    SALIDA = 'salida'                        # salen unidades por daño (a mantención o de baja)
+    CAMBIO_UBICACION = 'cambio_ubicacion'    # el recurso se movió de sala, bodega o mueble
+    ALTA = 'alta'                            # el recurso se agregó al inventario
+    TIPOS = [
+        (CAMBIO_ESTADO, 'Cambio de estado'),
+        (ENTRADA, 'Entrada'),
+        (SALIDA, 'Salida'),
+        (CAMBIO_UBICACION, 'Cambio de ubicación'),
+        (ALTA, 'Alta'),
+    ]
+
+    # Por qué entra o sale una unidad (RF-13, CA-14.1 y CA-14.2)
+    ADQUISICION = 'adquisicion'
+    PRESTAMO = 'prestamo'
+    REPOSICION = 'reposicion'
+    DANO_REPARABLE = 'dano_reparable'        # la unidad pasa a "en mantención"
+    DANO_IRREPARABLE = 'dano_irreparable'    # la unidad pasa a "dado de baja"
+    SUBTIPOS = [
+        (ADQUISICION, 'Adquisición'),
+        (PRESTAMO, 'Préstamo'),
+        (REPOSICION, 'Reposición'),
+        (DANO_REPARABLE, 'Daño reparable'),
+        (DANO_IRREPARABLE, 'Daño irreparable'),
+    ]
+
+    tipo = models.CharField(max_length=20, choices=TIPOS)
+
+    # CASCADE: si el encargado elimina un recurso, su historial se va con él
+    # (un historial sin recurso no sirve). Mientras el recurso exista, sus
+    # movimientos no se pueden editar ni borrar por la API (RNF-06).
+    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, related_name='movimientos')
+
+    # La unidad afectada, si se indicó (equipos e instrumentos, HU-12).
+    # SET_NULL: si se borra la unidad, el movimiento queda, pero sin unidad.
+    unidad = models.ForeignKey(
+        Unidad, on_delete=models.SET_NULL, null=True, blank=True, related_name='movimientos'
+    )
+
+    # Quién lo registró: lo pone la vista con request.user (perform_create, J15).
+    # PROTECT: un usuario con historial no se borra (se desactiva, HU-15).
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name='movimientos')
+
+    # auto_now_add: Django pone la fecha y hora al crear el registro, y no se puede cambiar.
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    # Desde qué estado y a qué estado pasaron las unidades. Un cambio de
+    # ubicación no tiene estados, por eso pueden quedar vacíos (blank=True).
+    estado_anterior = models.CharField(max_length=20, choices=ESTADOS, blank=True)
+    estado_nuevo = models.CharField(max_length=20, choices=ESTADOS, blank=True)
+    cantidad = models.PositiveIntegerField(default=0)  # 0 en un cambio de ubicación
+
+    motivo = models.TextField(blank=True)  # lo escribe el encargado
+
+    # Valor anterior y nuevo como texto, para mostrarlos tal cual en la tabla
+    # del historial: un estado ("Disponible") o una ubicación ("B307-B1-M2").
+    valor_anterior = models.CharField(max_length=60, blank=True)
+    valor_nuevo = models.CharField(max_length=60, blank=True)
+
+    subtipo = models.CharField(max_length=20, choices=SUBTIPOS, blank=True)  # solo en entradas y salidas
+
+    # Día en que ocurrió una entrada (lo escribe el encargado, CA-14.1). Es distinto
+    # de "fecha", que es el momento automático en que se registró.
+    fecha_movimiento = models.DateField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'movimiento'
+        verbose_name_plural = 'movimientos'
+        ordering = ['-fecha']  # el más nuevo primero (CA-06.3)
+
+    def __str__(self):
+        # La fecha se guarda en UTC: localtime() la pasa a la hora de Chile para mostrarla.
+        fecha_chile = timezone.localtime(self.fecha)
+        return f'{self.get_tipo_display()} — {self.recurso.nombre} ({fecha_chile:%d/%m/%Y %H:%M})'
