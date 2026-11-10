@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_filters',             # filtros con formulario en la API navegable
 
     # ===== Usuarios e inventario (Johann) =====
+    'usuarios',
     # ===== Fin Usuarios e inventario (Johann) =====
 
     # ===== Reservas (Martín) =====
