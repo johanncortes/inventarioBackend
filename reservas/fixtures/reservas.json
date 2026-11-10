@@ -1,0 +1,54 @@
+[
+  {
+    "model": "reservas.reserva",
+    "pk": 1,
+    "fields": {
+      "docente": 2,
+      "recurso": 1,
+      "sala": 1,
+      "cantidad": 5,
+      "fecha": "2026-12-10",
+      "hora_inicio": "08:30:00",
+      "hora_fin": "10:00:00",
+      "asignatura": "Química I",
+      "motivo": "Práctica de laboratorio: medición de temperatura",
+      "cancelada": false,
+      "creada_en": "2026-11-09T10:00:00Z"
+    }
+  },
+  {
+    "model": "reservas.reserva",
+    "pk": 2,
+    "fields": {
+      "docente": 2,
+      "recurso": 1,
+      "sala": 1,
+      "cantidad": 3,
+      "fecha": "2026-12-11",
+      "hora_inicio": "10:00:00",
+      "hora_fin": "12:00:00",
+      "asignatura": "Física II",
+      "motivo": "Experimento de calorimetría",
+      "cancelada": false,
+      "creada_en": "2026-11-09T10:05:00Z"
+    }
+  },
+  {
+    "model": "reservas.reserva",
+    "pk": 3,
+    "fields": {
+      "docente": 2,
+      "recurso": 1,
+      "sala": 2,
+      "cantidad": 2,
+      "fecha": "2026-12-15",
+      "hora_inicio": "14:00:00",
+      "hora_fin": "16:00:00",
+      "asignatura": "Biología Celular",
+      "motivo": "Uso de microscopios para observación de células",
+      "cancelada": true,
+      "creada_en": "2026-11-09T10:10:00Z"
+    }
+  }
+]
+
