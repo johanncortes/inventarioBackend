@@ -49,7 +49,8 @@ class RaizAPI(APIView):
             # ===== Fin Usuarios e inventario (Johann) =====
 
             # ===== Reservas (Martín) =====
-            # Ej: 'reservas': url('reserva-list'),
+            'reservas': url('reserva-list'),
+            'disponibilidad': url('disponibilidad'),
             # ===== Fin Reservas (Martín) =====
 
             # ===== Incidencias (Diego) =====
