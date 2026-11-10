@@ -114,11 +114,20 @@ class UnidadSerializer(serializers.ModelSerializer):
     # y responde "Este campo no puede estar en blanco." antes de llegar a validate().
 
     def validate(self, datos):
-        """El número no se puede repetir dentro del mismo recurso (CA-12.2).
+        """Revisa el estado y que el número no se repita dentro del mismo recurso (CA-12.2).
 
         MySQL compara sin importar mayúsculas (utf8mb4_unicode_ci), así que
         "abc-1" y "ABC-1" cuentan como repetidos, igual que en el front.
         """
+        # El estado se elige al CREAR la unidad. Después solo cambia con un movimiento,
+        # para que cada cambio quede en el historial (HU-06). Si llega el mismo estado
+        # que ya tiene (un PUT de la API navegable manda todos los campos), no pasa nada.
+        if self.instance is not None and 'estado' in datos and datos['estado'] != self.instance.estado:
+            raise serializers.ValidationError(
+                {'estado': 'El estado se cambia registrando un movimiento en /api/movimientos/, '
+                           'así queda en el historial.'}
+            )
+
         # En un PATCH puede venir solo uno de los dos campos: el otro se toma de la unidad actual.
         recurso = datos.get('recurso')
         numero = datos.get('numero')
@@ -189,6 +198,26 @@ class RecursoSerializer(serializers.ModelSerializer):
         if fecha is not None and fecha > timezone.localdate():
             raise serializers.ValidationError('La fecha de adquisición no puede ser futura.')
         return fecha
+
+    def validate(self, datos):
+        """Las cantidades se escriben al CREAR el recurso; después solo cambian con un movimiento.
+
+        Así cada cambio de estado, entrada o salida queda en el historial (HU-06, RF-13).
+        Si llega la misma cantidad que ya tiene (un PUT de la API navegable manda
+        todos los campos), no pasa nada.
+        """
+        if self.instance is not None:
+            campos_cantidad = [
+                'cantidad_disponible', 'cantidad_en_uso', 'cantidad_danado',
+                'cantidad_en_mantencion', 'cantidad_dado_de_baja',
+            ]
+            for campo in campos_cantidad:
+                if campo in datos and datos[campo] != getattr(self.instance, campo):
+                    raise serializers.ValidationError(
+                        {campo: 'Las cantidades se cambian registrando un movimiento en '
+                                '/api/movimientos/, así queda en el historial.'}
+                    )
+        return datos
 
     def get_cantidades(self, recurso):
         """Cuántas unidades hay en cada estado (ver Recurso.obtener_cantidades)."""
