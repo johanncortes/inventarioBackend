@@ -22,6 +22,7 @@ urlpatterns = [
     # ===== Usuarios e inventario (Johann) =====
     # include() suma las URLs de inventario/urls.py delante de "api/": /api/categorias/, etc.
     path('api/', include('inventario.urls')),
+    path('api/', include('usuarios.urls')),
     # ===== Fin Usuarios e inventario (Johann) =====
 
     # ===== Reservas (Martín) =====
