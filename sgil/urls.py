@@ -7,7 +7,8 @@ agrega su línea dentro de sus marcadores.
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 
 from .raiz import RaizAPI
 
@@ -23,7 +24,13 @@ urlpatterns = [
 
     # Entrega el token de un usuario: POST con username y password → {"token": "..."}.
     # Lo usará el front en la Unidad IV.
-    path('api/token/', obtain_auth_token, name='token'),
+    # La vista de DRF solo responde JSON; con BrowsableAPIRenderer también se ve en
+    # el navegador, con un formulario para probarla desde la API navegable.
+    path(
+        'api/token/',
+        ObtainAuthToken.as_view(renderer_classes=[JSONRenderer, BrowsableAPIRenderer]),
+        name='token',
+    ),
 
     # ===== Usuarios e inventario (Johann) =====
     # include() suma las URLs de inventario/urls.py delante de "api/": /api/categorias/, etc.
