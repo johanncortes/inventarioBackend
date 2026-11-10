@@ -15,11 +15,12 @@ from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from usuarios.permisos import EsEncargadoOSoloLectura
+from usuarios.permisos import EsEncargadoODepartamento, EsEncargadoOSoloLectura
 
-from .models import ESTADOS, Categoria, Recurso, Sala, Torre, Unidad
+from .models import ESTADOS, Categoria, Movimiento, Recurso, Sala, Torre, Unidad
 from .serializers import (
     CategoriaSerializer,
+    MovimientoSerializer,
     RecursoSerializer,
     SalaSerializer,
     TorreSerializer,
@@ -157,3 +158,23 @@ class UnidadViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """Una unidad con incidencias registradas no se puede borrar."""
         return borrar_o_avisar(self.get_object(), 'No se puede eliminar: la unidad tiene incidencias registradas.')
+
+
+class MovimientoViewSet(viewsets.ModelViewSet):
+    """Historial de movimientos (HU-06) y registro de cambios de estado, entradas y salidas (HU-02, HU-14).
+
+    Permisos: el encargado lee y registra; el departamento solo lee; el docente recibe 403.
+    """
+
+    queryset = Movimiento.objects.select_related('recurso', 'unidad', 'usuario')
+    serializer_class = MovimientoSerializer
+    permission_classes = [EsEncargadoODepartamento]
+    filterset_fields = ['recurso', 'unidad', 'tipo']   # /api/movimientos/?recurso=3
+
+    def perform_create(self, serializer):
+        """Guarda quién registró el movimiento: el usuario conectado.
+
+        perform_create se ejecuta justo antes de guardar. Así el usuario no se
+        escribe en el formulario (no se puede registrar a nombre de otro).
+        """
+        serializer.save(usuario=self.request.user)

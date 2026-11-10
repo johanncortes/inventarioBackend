@@ -7,11 +7,14 @@ ModelSerializer arma los campos solo, leyendo el modelo.
 
 - Categoria, Torre y Sala: página "Configuración" (RF-08, RF-10, RNF-05).
 - Recurso y Unidad: inventario y ficha del recurso (HU-01, HU-11, HU-12, HU-13).
+- Movimiento: historial, cambios de estado, entradas y salidas (HU-02, HU-06, HU-14).
 """
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Categoria, Recurso, Sala, Torre, Unidad
+from . import movimientos
+from .models import DISPONIBLE, Categoria, Movimiento, Recurso, Sala, Torre, Unidad
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -194,3 +197,119 @@ class RecursoSerializer(serializers.ModelSerializer):
     def get_cantidad_total(self, recurso):
         """La suma de todos los estados: lo que muestra la tarjeta del inventario."""
         return recurso.obtener_cantidad_total()
+
+
+class MovimientoSerializer(serializers.ModelSerializer):
+    """Un registro del historial. Al CREARLO se aplica el cambio en el inventario (HU-02, HU-14).
+
+    Qué se manda en el POST según el tipo:
+    - cambio_estado: recurso, estado_nuevo, motivo y
+        · equipos/instrumentos: unidad
+        · insumos/reactivos: estado_anterior y cantidad
+    - entrada: recurso, subtipo (adquisicion/prestamo/reposicion), fecha_movimiento y
+        · equipos/instrumentos: numero_unidad_nueva
+        · insumos/reactivos: cantidad
+    - salida: recurso, subtipo (dano_reparable/dano_irreparable), motivo y
+        · equipos/instrumentos: unidad
+        · insumos/reactivos: estado_anterior y cantidad
+    """
+
+    # Textos para mostrar en la tabla del historial (solo lectura).
+    tipo_texto = serializers.CharField(source='get_tipo_display', read_only=True)
+    recurso_nombre = serializers.CharField(source='recurso.nombre', read_only=True)
+    unidad_numero = serializers.CharField(source='unidad.numero', read_only=True, default='')
+    usuario_nombre = serializers.SerializerMethodField()
+
+    # write_only: se recibe en el POST pero no se muestra en las respuestas.
+    # No es un campo del modelo: sirve para crear la unidad que entra (equipos e instrumentos).
+    numero_unidad_nueva = serializers.CharField(write_only=True, required=False, default='')
+
+    class Meta:
+        model = Movimiento
+        fields = [
+            'id', 'tipo', 'tipo_texto', 'subtipo',
+            'recurso', 'recurso_nombre', 'unidad', 'unidad_numero', 'numero_unidad_nueva',
+            'estado_anterior', 'estado_nuevo', 'cantidad', 'motivo',
+            'valor_anterior', 'valor_nuevo',
+            'fecha', 'fecha_movimiento', 'usuario', 'usuario_nombre',
+        ]
+        # usuario lo pone la vista (perform_create); fecha, Django; los valores, aplicar_movimiento().
+        read_only_fields = ['fecha', 'usuario', 'valor_anterior', 'valor_nuevo']
+        # cantidad tiene default=0 en el modelo; aquí se deja opcional para que
+        # los equipos (que mueven 1 unidad) no tengan que mandarla.
+        extra_kwargs = {'cantidad': {'required': False}}
+
+    def get_usuario_nombre(self, movimiento):
+        """Nombre completo de quien registró el movimiento, o su usuario si no tiene nombre."""
+        nombre = movimiento.usuario.get_full_name()
+        if nombre == '':
+            return movimiento.usuario.username
+        return nombre
+
+    def validate(self, datos):
+        """Revisa el movimiento con las reglas de inventario/movimientos.py y completa los estados."""
+        tipo = datos['tipo']
+        recurso = datos['recurso']
+        unidad = datos.get('unidad')
+        estado_anterior = datos.get('estado_anterior', '')
+        estado_nuevo = datos.get('estado_nuevo', '')
+        cantidad = datos.get('cantidad')
+        motivo = datos.get('motivo', '')
+        subtipo = datos.get('subtipo', '')
+        numero_unidad_nueva = datos.get('numero_unidad_nueva', '').strip()
+
+        # Los cambios de ubicación y las altas no se mandan a mano: los registra el
+        # sistema al editar o crear el recurso (J16).
+        if tipo not in [Movimiento.CAMBIO_ESTADO, Movimiento.ENTRADA, Movimiento.SALIDA]:
+            raise serializers.ValidationError(
+                {'tipo': 'Aquí solo se registran cambios de estado, entradas y salidas. '
+                         'El cambio de ubicación se hace editando el recurso.'}
+            )
+
+        # La unidad elegida tiene que ser de ESE recurso.
+        if unidad is not None and unidad.recurso_id != recurso.id:
+            raise serializers.ValidationError({'unidad': f'La unidad {unidad.numero} no es de {recurso.nombre}.'})
+
+        if tipo == Movimiento.CAMBIO_ESTADO:
+            error = movimientos.validar_cambio_estado(recurso, unidad, estado_anterior, estado_nuevo, cantidad, motivo)
+        elif tipo == Movimiento.ENTRADA:
+            error = movimientos.validar_entrada(recurso, subtipo, cantidad, datos.get('fecha_movimiento'),
+                                                numero_unidad_nueva)
+        else:
+            error = movimientos.validar_salida(recurso, unidad, subtipo, estado_anterior, cantidad, motivo)
+
+        if error != '':
+            raise serializers.ValidationError(error)
+
+        # Completa los datos que se deducen solos, para que el historial quede completo.
+        if tipo == Movimiento.ENTRADA:
+            datos['estado_anterior'] = ''
+            datos['estado_nuevo'] = DISPONIBLE
+            datos['unidad'] = None
+            if numero_unidad_nueva != '':
+                datos['cantidad'] = 1
+        else:
+            if tipo == Movimiento.SALIDA:
+                datos['estado_nuevo'] = movimientos.estado_nuevo_de_salida(subtipo)
+            else:
+                datos['subtipo'] = ''  # un cambio de estado no tiene subtipo
+            if unidad is not None:
+                # Con n° de serie se mueve 1 unidad, desde el estado que tiene ahora.
+                datos['estado_anterior'] = unidad.estado
+                datos['cantidad'] = 1
+
+        datos['numero_unidad_nueva'] = numero_unidad_nueva
+        return datos
+
+    def create(self, datos):
+        """Aplica el cambio en el inventario y guarda el registro del historial.
+
+        transaction.atomic(): si algo falla a la mitad, no se guarda NADA
+        (ni el cambio del recurso ni el registro). Todo o nada.
+        """
+        numero_unidad_nueva = datos.pop('numero_unidad_nueva', '')
+        with transaction.atomic():
+            movimiento = Movimiento(**datos)
+            movimientos.aplicar_movimiento(movimiento, numero_unidad_nueva)
+            movimiento.save()
+        return movimiento
