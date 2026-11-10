@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # ===== Fin Usuarios e inventario (Johann) =====
 
     # ===== Reservas (Martín) =====
+    'reservas',
     # ===== Fin Reservas (Martín) =====
 
     # ===== Incidencias (Diego) =====
