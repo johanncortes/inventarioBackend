@@ -59,7 +59,8 @@ class Incidencia(models.Model):
         limit_choices_to={'perfil__rol': 'docente'},
     )
 
-    # Quién registró la incidencia (el encargado).
+    # Quién registró la incidencia: lo guarda solo la vista con request.user
+    # (perform_create, D5). Así no se puede registrar a nombre de otro (HU-10).
     # PROTECT: un usuario con incidencias no se borra (se desactiva, HU-15).
     registrada_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='incidencias_registradas')
 
@@ -67,10 +68,12 @@ class Incidencia(models.Model):
     hay_afectados = models.BooleanField(default=False)
     detalle_afectados = models.TextField(blank=True)
 
-    # choices limita el campo a los tres estados; la API navegable lo muestra como lista.
-    estado = models.CharField(max_length=20, choices=ESTADOS)
+    # Nace siempre en "pendiente" (default=PENDIENTE, D5).
+    # Solo cambia editando la incidencia en PUT/PATCH (D8).
+    estado = models.CharField(max_length=20, choices=ESTADOS, default=PENDIENTE)
 
-    fecha = models.DateTimeField()  # cuándo se registró
+    # auto_now_add: Django pone la fecha y hora al crear el registro, y no se puede cambiar.
+    fecha = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'incidencia'

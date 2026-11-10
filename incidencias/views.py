@@ -21,3 +21,12 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     # consulta (son FK). Sin esto, la página haría varias consultas por incidencia.
     queryset = Incidencia.objects.select_related('recurso', 'unidad', 'docente_presente', 'registrada_por')
     serializer_class = IncidenciaSerializer
+
+    def perform_create(self, serializer):
+        """Guarda quién registró la incidencia: el usuario conectado (HU-10).
+
+        perform_create se ejecuta justo antes de guardar en un POST. Así el
+        encargado no puede registrar una incidencia a nombre de otra persona.
+        El estado nace en 'pendiente' y la fecha se pone sola (auto_now_add).
+        """
+        serializer.save(registrada_por=self.request.user)

@@ -24,8 +24,9 @@ def nombre_de(usuario):
 class IncidenciaSerializer(serializers.ModelSerializer):
     """Incidencia con los nombres del recurso, la unidad y los usuarios.
 
-    Para crear o editar se mandan los id (recurso, unidad, docente_presente);
-    los campos *_nombre, *_numero y *_texto son solo para mostrar (read_only).
+    Para crear se mandan solo: recurso, unidad (opcional), descripcion,
+    docente_presente (opcional), hay_afectados y detalle_afectados.
+    La fecha, el estado y quién la registra los guarda el sistema (D5, HU-10).
     """
 
     # source= saca el dato del objeto relacionado: así el JSON muestra
@@ -55,6 +56,14 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'fecha',
             'registrada_por', 'registrada_por_nombre',
         ]
+        # Al crear (POST), estos 3 campos no se escriben a mano:
+        # - fecha: auto_now_add del modelo (momento exacto).
+        # - registrada_por: lo pone la vista con request.user (perform_create, D5).
+        # - estado: nace siempre en 'pendiente' (default del modelo, D5).
+        read_only_fields = ['fecha', 'registrada_por']
+        extra_kwargs = {
+            'estado': {'required': False},
+        }
 
     def get_docente_presente_nombre(self, incidencia):
         """Nombre del docente que estaba presente (None si no se indicó)."""
@@ -63,4 +72,3 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     def get_registrada_por_nombre(self, incidencia):
         """Nombre de quien registró la incidencia."""
         return nombre_de(incidencia.registrada_por)
-
