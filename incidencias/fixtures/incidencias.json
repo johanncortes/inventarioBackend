@@ -1,0 +1,47 @@
+[
+  {
+    "model": "incidencias.incidencia",
+    "pk": 1,
+    "fields": {
+      "recurso": 1,
+      "unidad": 13,
+      "descripcion": "Punta de prueba rota durante la medición de resistencia en el laboratorio de Electrónica.",
+      "docente_presente": 2,
+      "registrada_por": 1,
+      "hay_afectados": false,
+      "detalle_afectados": "",
+      "estado": "en_revision",
+      "fecha": "2026-10-01T11:25:00-03:00"
+    }
+  },
+  {
+    "model": "incidencias.incidencia",
+    "pk": 2,
+    "fields": {
+      "recurso": 6,
+      "unidad": 100,
+      "descripcion": "Pantalla LCD sin lectura ni retroiluminación tras finalizar la experiencia de Química.",
+      "docente_presente": 4,
+      "registrada_por": 1,
+      "hay_afectados": false,
+      "detalle_afectados": "",
+      "estado": "pendiente",
+      "fecha": "2026-09-25T16:45:00-03:00"
+    }
+  },
+  {
+    "model": "incidencias.incidencia",
+    "pk": 3,
+    "fields": {
+      "recurso": 8,
+      "unidad": null,
+      "descripcion": "Derrame menor de sulfato de cobre sobre mesón de trabajo al manipular el frasco.",
+      "docente_presente": 5,
+      "registrada_por": 1,
+      "hay_afectados": true,
+      "detalle_afectados": "Alumno presentó irritación cutánea leve en antebrazo. Se aplicó lavado con abundante agua según protocolo.",
+      "estado": "resuelta",
+      "fecha": "2026-09-18T10:15:00-03:00"
+    }
+  }
+]

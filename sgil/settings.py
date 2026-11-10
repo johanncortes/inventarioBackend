@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # ===== Fin Reservas (Martín) =====
 
     # ===== Incidencias (Diego) =====
+    'incidencias',
     # ===== Fin Incidencias (Diego) =====
 ]
 

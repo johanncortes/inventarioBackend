@@ -54,7 +54,8 @@ class RaizAPI(APIView):
             # ===== Fin Reservas (Martín) =====
 
             # ===== Incidencias (Diego) =====
-            # Ej: 'incidencias': url('incidencia-list'),
+            'incidencias': url('incidencia-list'),
+            'alertas': url('alerta-list'),
             # ===== Fin Incidencias (Diego) =====
         }
         return Response(endpoints)

@@ -277,7 +277,35 @@ _Pendiente: endpoints de reservas y disponibilidad._
 <!-- ===== Incidencias (Diego) ===== -->
 ### 5.4 Incidencias y alertas (Diego)
 
-_Pendiente: endpoints de incidencias y alertas._
+Endpoints para la gestión y auditoría de incidencias (HU-04, HU-10) y panel dinámico de alertas operativas (HU-05, HU-09).
+
+| Método | URL | Qué hace |
+|---|---|---|
+| GET, POST | `/api/incidencias/` | Listar incidencias y registrar una nueva (HU-04, HU-10) |
+| GET, PUT, PATCH | `/api/incidencias/{id}/` | Consultar detalle y avanzar el estado de una incidencia |
+| GET | `/api/alertas/` | Panel de alertas calculadas en tiempo real (reparación, mantención, reposición) |
+
+**Permisos por rol:**
+- **Docente:** `403 Forbidden` (no tiene acceso ni a incidencias ni al panel de alertas).
+- **Departamento:** Solo lectura (`GET`), puede consultar todas las incidencias y ver las alertas operativas.
+- **Encargado:** Acceso completo. Registra incidencias, avanza estados y consulta alertas.
+
+**Incidencias (`/api/incidencias/`):**
+- **Registro automático:** La fecha (`auto_now_add`), el usuario que la registra (`registrada_por` tomado de `request.user`) y el estado inicial (`pendiente`) se asignan automáticamente.
+- **Validaciones de negocio:**
+  - Si se marca `hay_afectados: true`, es obligatorio ingresar el `detalle_afectados` (HU-04).
+  - Si se asocia una unidad (`unidad`), se valida estrictamente que pertenezca al recurso seleccionado (CA-12.4).
+- **Flujo de estados:** Las incidencias solo pueden avanzar en su ciclo de vida (`pendiente` → `en_revision` → `resuelta`). No se permite retroceder el estado (HU-10).
+- **Auditoría intacta:** Las incidencias **no se pueden borrar** (`DELETE` responde `405 Method Not Allowed`, RNF-06).
+- **Filtros y orden:** `?estado=pendiente`, `?recurso=1`, `?search=fuga`, `?ordering=-fecha`.
+
+**Alertas calculadas (`GET /api/alertas/`):**
+- No se almacenan en la base de datos: se calculan en vivo a partir del estado de los recursos y sus unidades para evitar duplicidad y desactualización (CA-05.3, CA-09.4).
+- **Tipos de alerta:**
+  - `reparacion`: Recursos o unidades con estado `danado`.
+  - `mantencion`: Recursos o unidades con estado `en_mantencion`.
+  - `reposicion`: Insumos o reactivos con stock disponible menor o igual a su `stock_minimo`.
+- **Filtro y paginación:** Permite filtrar por tipo (`?tipo=reposicion`) y entrega el formato paginado con el contador total (`count`), utilizado para el indicador del menú.
 <!-- ===== Fin Incidencias (Diego) ===== -->
 
 ---
