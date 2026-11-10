@@ -20,6 +20,8 @@ urlpatterns = [
     path('api/token/', obtain_auth_token),
 
     # ===== Usuarios e inventario (Johann) =====
+    # include() suma las URLs de inventario/urls.py delante de "api/": /api/categorias/, etc.
+    path('api/', include('inventario.urls')),
     # ===== Fin Usuarios e inventario (Johann) =====
 
     # ===== Reservas (Martín) =====
