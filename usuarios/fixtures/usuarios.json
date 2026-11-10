@@ -1,0 +1,132 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "encargado@prueba.cl",
+      "email": "encargado@prueba.cl",
+      "first_name": "Pedro Soto",
+      "last_name": "",
+      "password": "pbkdf2_sha256$600000$4zTtFWfPGM7DedimIjqtUE$0yWlzcq2wYO2Fu7udk9PD2Jvl/tQ2DuVekOT2R1gzgM=",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2026-09-01T08:00:00-03:00",
+      "last_login": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "docente@prueba.cl",
+      "email": "docente@prueba.cl",
+      "first_name": "Prof. Ana Morales",
+      "last_name": "",
+      "password": "pbkdf2_sha256$600000$4zTtFWfPGM7DedimIjqtUE$0yWlzcq2wYO2Fu7udk9PD2Jvl/tQ2DuVekOT2R1gzgM=",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2026-09-01T08:00:00-03:00",
+      "last_login": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "username": "departamento@prueba.cl",
+      "email": "departamento@prueba.cl",
+      "first_name": "Luis Sergio Torres",
+      "last_name": "",
+      "password": "pbkdf2_sha256$600000$4zTtFWfPGM7DedimIjqtUE$0yWlzcq2wYO2Fu7udk9PD2Jvl/tQ2DuVekOT2R1gzgM=",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2026-09-01T08:00:00-03:00",
+      "last_login": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "username": "carlos.fuentes@prueba.cl",
+      "email": "carlos.fuentes@prueba.cl",
+      "first_name": "Prof. Carlos Fuentes",
+      "last_name": "",
+      "password": "pbkdf2_sha256$600000$4zTtFWfPGM7DedimIjqtUE$0yWlzcq2wYO2Fu7udk9PD2Jvl/tQ2DuVekOT2R1gzgM=",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2026-09-01T08:00:00-03:00",
+      "last_login": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 5,
+    "fields": {
+      "username": "jorge.paredes@prueba.cl",
+      "email": "jorge.paredes@prueba.cl",
+      "first_name": "Prof. Jorge Paredes",
+      "last_name": "",
+      "password": "pbkdf2_sha256$600000$4zTtFWfPGM7DedimIjqtUE$0yWlzcq2wYO2Fu7udk9PD2Jvl/tQ2DuVekOT2R1gzgM=",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2026-09-01T08:00:00-03:00",
+      "last_login": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "usuarios.perfil",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "rol": "encargado"
+    }
+  },
+  {
+    "model": "usuarios.perfil",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "rol": "docente"
+    }
+  },
+  {
+    "model": "usuarios.perfil",
+    "pk": 3,
+    "fields": {
+      "usuario": 3,
+      "rol": "departamento"
+    }
+  },
+  {
+    "model": "usuarios.perfil",
+    "pk": 4,
+    "fields": {
+      "usuario": 4,
+      "rol": "docente"
+    }
+  },
+  {
+    "model": "usuarios.perfil",
+    "pk": 5,
+    "fields": {
+      "usuario": 5,
+      "rol": "docente"
+    }
+  }
+]
