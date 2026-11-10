@@ -21,6 +21,15 @@ def nombre_de(usuario):
     return nombre
 
 
+# Flujo permitido de estados (HU-10): solo avanzar, nunca retroceder
+# pendiente -> en_revision -> resuelta
+TRANSICIONES_VALIDAS = {
+    Incidencia.PENDIENTE: [Incidencia.PENDIENTE, Incidencia.EN_REVISION],
+    Incidencia.EN_REVISION: [Incidencia.EN_REVISION, Incidencia.RESUELTA],
+    Incidencia.RESUELTA: [Incidencia.RESUELTA],
+}
+
+
 class IncidenciaSerializer(serializers.ModelSerializer):
     """Incidencia con los nombres del recurso, la unidad y los usuarios.
 
@@ -64,6 +73,23 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'estado': {'required': False},
         }
+
+    def validate_estado(self, nuevo_estado):
+        """Valida que el estado solo pueda avanzar (pendiente -> en_revision -> resuelta) y no retroceder (D8, HU-10)."""
+        # Si se está creando (self.instance is None), el default es 'pendiente'
+        if self.instance is None:
+            return nuevo_estado
+
+        estado_actual = self.instance.estado
+        permitidos = TRANSICIONES_VALIDAS.get(estado_actual, [])
+
+        if nuevo_estado not in permitidos:
+            raise serializers.ValidationError(
+                f'No se puede cambiar el estado de "{self.instance.get_estado_display()}" '
+                f'a "{dict(Incidencia.ESTADOS).get(nuevo_estado, nuevo_estado)}". El estado solo puede avanzar sin retroceder.'
+            )
+
+        return nuevo_estado
 
     def validate(self, datos):
         """Validaciones de negocio al registrar o editar una incidencia (HU-04, CA-12.4).

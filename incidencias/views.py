@@ -22,6 +22,9 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     - Encargado: registra y avanza estados.
     - Departamento: solo lectura.
     - Docente: 403 Forbidden.
+
+    Métodos HTTP permitidos (RNF-06, D8):
+    - No se permite borrar incidencias (sin 'delete'). Un DELETE responderá 405 Method Not Allowed.
     """
 
     # select_related trae el recurso, la unidad y los dos usuarios en la MISMA
@@ -29,6 +32,9 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     queryset = Incidencia.objects.select_related('recurso', 'unidad', 'docente_presente', 'registrada_por')
     serializer_class = IncidenciaSerializer
     permission_classes = [PermisoIncidencias]
+
+    # Sin 'delete': las incidencias registradas forman parte de la auditoría y no se borran (RNF-06)
+    http_method_names = ['get', 'post', 'put', 'patch', 'head', 'options']
 
     def perform_create(self, serializer):
         """Guarda quién registró la incidencia: el usuario conectado (HU-10).
