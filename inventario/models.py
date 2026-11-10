@@ -170,6 +170,40 @@ class Recurso(models.Model):
         self.codigo_ubicacion = generar_codigo_ubicacion(self.sala.codigo, self.bodega, self.mueble)
         super().save(*args, **kwargs)
 
+    def obtener_cantidades(self):
+        """Devuelve cuántas unidades hay en cada estado: {'disponible': 12, 'en_uso': 0, ...}.
+
+        Misma regla del front (utils/unidades.ts): si el recurso tiene unidades con
+        número de serie, se cuentan esas unidades; si no, se usan los campos cantidad_*.
+        También la usan reservas (unidades disponibles) e incidencias (alertas).
+        """
+        unidades = list(self.unidades.all())
+
+        if len(unidades) == 0:
+            return {
+                DISPONIBLE: self.cantidad_disponible,
+                EN_USO: self.cantidad_en_uso,
+                DANADO: self.cantidad_danado,
+                EN_MANTENCION: self.cantidad_en_mantencion,
+                DADO_DE_BAJA: self.cantidad_dado_de_baja,
+            }
+
+        # Parte todo en 0 y suma 1 al estado de cada unidad.
+        cantidades = {DISPONIBLE: 0, EN_USO: 0, DANADO: 0, EN_MANTENCION: 0, DADO_DE_BAJA: 0}
+        for unidad in unidades:
+            cantidades[unidad.estado] = cantidades[unidad.estado] + 1
+        return cantidades
+
+    def obtener_cantidad_total(self):
+        """Suma las unidades de todos los estados. Ej: 12 + 0 + 1 + 1 + 0 = 14.
+
+        No se guarda en la base porque podría quedar desactualizada: se calcula cada vez.
+        """
+        total = 0
+        for cantidad in self.obtener_cantidades().values():
+            total = total + cantidad
+        return total
+
 
 class Unidad(models.Model):
     """Una unidad de un equipo o instrumento, identificada por su número de serie (HU-12, RF-11).

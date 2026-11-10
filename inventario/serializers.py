@@ -5,12 +5,13 @@ Un serializer convierte un objeto de Django (una fila de la base) en JSON para
 la API, y al revés: valida el JSON que llega en un POST/PUT/PATCH antes de guardarlo.
 ModelSerializer arma los campos solo, leyendo el modelo.
 
-Aquí: Categoria, Torre y Sala (página "Configuración", RF-08, RF-10, RNF-05).
-Recurso y Unidad se agregan en J10.
+- Categoria, Torre y Sala: página "Configuración" (RF-08, RF-10, RNF-05).
+- Recurso y Unidad: inventario y ficha del recurso (HU-01, HU-11, HU-12, HU-13).
 """
+from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Categoria, Sala, Torre
+from .models import Categoria, Recurso, Sala, Torre, Unidad
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -91,3 +92,105 @@ class SalaSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f'La sala {torre.letra}{numero} ya existe.')
 
         return datos
+
+
+class UnidadSerializer(serializers.ModelSerializer):
+    """Una unidad con su número de serie y su estado (HU-12)."""
+
+    # get_estado_display: el texto del estado ("Dañado") además del valor guardado ("danado").
+    estado_texto = serializers.CharField(source='get_estado_display', read_only=True)
+
+    class Meta:
+        model = Unidad
+        fields = ['id', 'recurso', 'numero', 'estado', 'estado_texto']
+        # Se quita el validador automático de unique_together (recurso, numero),
+        # que da un mensaje genérico, para revisarlo en validate() con uno claro.
+        validators = []
+
+    # Número vacío (CA-12.1): no hace falta revisarlo a mano. DRF quita los espacios
+    # y responde "Este campo no puede estar en blanco." antes de llegar a validate().
+
+    def validate(self, datos):
+        """El número no se puede repetir dentro del mismo recurso (CA-12.2).
+
+        MySQL compara sin importar mayúsculas (utf8mb4_unicode_ci), así que
+        "abc-1" y "ABC-1" cuentan como repetidos, igual que en el front.
+        """
+        # En un PATCH puede venir solo uno de los dos campos: el otro se toma de la unidad actual.
+        recurso = datos.get('recurso')
+        numero = datos.get('numero')
+        if self.instance is not None:
+            if recurso is None:
+                recurso = self.instance.recurso
+            if numero is None:
+                numero = self.instance.numero
+
+        repetidas = Unidad.objects.filter(recurso=recurso, numero=numero)
+        if self.instance is not None:
+            repetidas = repetidas.exclude(pk=self.instance.pk)
+        if repetidas.exists():
+            raise serializers.ValidationError(
+                {'numero': f'El número "{numero}" ya está registrado en {recurso.nombre}. '
+                           'Cada unidad debe tener un número distinto.'}
+            )
+
+        return datos
+
+
+class RecursoSerializer(serializers.ModelSerializer):
+    """Recurso con los nombres de su categoría y ubicación, sus cantidades y sus unidades.
+
+    Para crear o editar se mandan los id (categoria, sala); los campos *_nombre,
+    *_codigo y las cantidades calculadas son solo para mostrar (read_only).
+    """
+
+    # source= saca el dato del objeto relacionado, así el front muestra
+    # "Instrumento" y "B307" sin tener que pedir la categoría o la sala aparte.
+    categoria_nombre = serializers.CharField(source='categoria.nombre', read_only=True)
+    sala_codigo = serializers.CharField(source='sala.codigo', read_only=True)
+    torre = serializers.CharField(source='sala.torre.letra', read_only=True)
+
+    # Las unidades van ANIDADAS dentro del recurso (la ficha las muestra en una tabla).
+    # many=True porque son varias; read_only porque se crean en /api/unidades/ (J11).
+    # Usa related_name='unidades' del modelo Unidad.
+    unidades = UnidadSerializer(many=True, read_only=True)
+
+    # SerializerMethodField: el valor lo calcula el método get_<nombre> de abajo.
+    cantidades = serializers.SerializerMethodField()
+    cantidad_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recurso
+        fields = [
+            'id', 'nombre',
+            'categoria', 'categoria_nombre',
+            'sala', 'sala_codigo', 'torre', 'bodega', 'mueble', 'codigo_ubicacion',
+            # Cantidades que se escriben a mano (recursos sin n° de serie: insumos, reactivos...)
+            'cantidad_disponible', 'cantidad_en_uso', 'cantidad_danado',
+            'cantidad_en_mantencion', 'cantidad_dado_de_baja',
+            # Cantidades calculadas (sirven para todos los recursos, con o sin unidades)
+            'cantidades', 'cantidad_total',
+            'unidades',
+            'numero_serie', 'marca', 'proveedor', 'observacion',
+            'stock_minimo', 'fecha_adquisicion',
+        ]
+        read_only_fields = ['codigo_ubicacion']
+
+    def validate_fecha_adquisicion(self, fecha):
+        """La fecha de adquisición no puede ser futura (HU-13, CA-13.1).
+
+        Es opcional (puede venir vacía): la carga desde Excel no trae fecha
+        y la ficha muestra "Sin fecha".
+        """
+        # timezone.localdate() es el día de hoy en Chile (TIME_ZONE = 'America/Santiago').
+        if fecha is not None and fecha > timezone.localdate():
+            raise serializers.ValidationError('La fecha de adquisición no puede ser futura.')
+        return fecha
+
+    def get_cantidades(self, recurso):
+        """Cuántas unidades hay en cada estado (ver Recurso.obtener_cantidades)."""
+        return recurso.obtener_cantidades()
+
+    def get_cantidad_total(self, recurso):
+        """La suma de todos los estados: lo que muestra la tarjeta del inventario."""
+        return recurso.obtener_cantidad_total()
