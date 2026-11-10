@@ -79,8 +79,8 @@ class SalaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['codigo']
 
     def destroy(self, request, *args, **kwargs):
-        """No se puede borrar una sala que todavía tiene recursos."""
-        return borrar_o_avisar(self.get_object(), 'No se puede eliminar: hay recursos en esta sala.')
+        """No se puede borrar una sala que todavía tiene recursos o reservas (on_delete=PROTECT)."""
+        return borrar_o_avisar(self.get_object(), 'No se puede eliminar: la sala tiene recursos o reservas.')
 
 
 class RecursoViewSet(viewsets.ModelViewSet):
