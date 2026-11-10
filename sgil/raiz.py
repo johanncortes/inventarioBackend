@@ -54,6 +54,7 @@ class RaizAPI(APIView):
 
             # ===== Incidencias (Diego) =====
             'incidencias': url('incidencia-list'),
+            'alertas': url('alerta-list'),
             # ===== Fin Incidencias (Diego) =====
         }
         return Response(endpoints)
