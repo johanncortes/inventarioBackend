@@ -8,12 +8,14 @@ Además crea la página /api/ con la lista de endpoints (la "raíz" de la API na
 """
 from rest_framework.routers import DefaultRouter
 
-from .views import CategoriaViewSet, SalaViewSet, TorreViewSet
+from .views import CategoriaViewSet, RecursoViewSet, SalaViewSet, TorreViewSet, UnidadViewSet
 
 router = DefaultRouter()
 # El primer texto es el pedazo de la URL; basename no hace falta porque el ViewSet tiene queryset.
 router.register('categorias', CategoriaViewSet)
 router.register('torres', TorreViewSet)
 router.register('salas', SalaViewSet)
+router.register('recursos', RecursoViewSet)
+router.register('unidades', UnidadViewSet)
 
 urlpatterns = router.urls

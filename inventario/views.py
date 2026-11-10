@@ -15,8 +15,14 @@ from rest_framework.response import Response
 
 from usuarios.permisos import EsEncargadoOSoloLectura
 
-from .models import Categoria, Sala, Torre
-from .serializers import CategoriaSerializer, SalaSerializer, TorreSerializer
+from .models import Categoria, Recurso, Sala, Torre, Unidad
+from .serializers import (
+    CategoriaSerializer,
+    RecursoSerializer,
+    SalaSerializer,
+    TorreSerializer,
+    UnidadSerializer,
+)
 
 
 def borrar_o_avisar(objeto, mensaje):
@@ -71,3 +77,34 @@ class SalaViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """No se puede borrar una sala que todavía tiene recursos."""
         return borrar_o_avisar(self.get_object(), 'No se puede eliminar: hay recursos en esta sala.')
+
+
+class RecursoViewSet(viewsets.ModelViewSet):
+    """CRUD de recursos: listado del inventario, ficha, agregar, editar y eliminar (HU-01, HU-11, HU-12)."""
+
+    # select_related trae la categoría, la sala y su torre en la MISMA consulta (son FK).
+    # prefetch_related trae las unidades de todos los recursos en UNA consulta extra
+    # (son "muchos" por recurso). Sin esto, la página haría una consulta por cada recurso.
+    queryset = Recurso.objects.select_related('categoria', 'sala__torre').prefetch_related('unidades')
+    serializer_class = RecursoSerializer
+    permission_classes = [EsEncargadoOSoloLectura]
+
+    def destroy(self, request, *args, **kwargs):
+        """Un recurso con reservas o incidencias no se puede borrar (on_delete=PROTECT en esas apps)."""
+        return borrar_o_avisar(
+            self.get_object(),
+            'No se puede eliminar: el recurso tiene reservas o incidencias registradas.',
+        )
+
+
+class UnidadViewSet(viewsets.ModelViewSet):
+    """CRUD de unidades con número de serie de equipos e instrumentos (HU-12, RF-11)."""
+
+    queryset = Unidad.objects.select_related('recurso')
+    serializer_class = UnidadSerializer
+    permission_classes = [EsEncargadoOSoloLectura]
+    filterset_fields = ['recurso', 'estado']   # /api/unidades/?recurso=3&estado=danado
+
+    def destroy(self, request, *args, **kwargs):
+        """Una unidad con incidencias registradas no se puede borrar."""
+        return borrar_o_avisar(self.get_object(), 'No se puede eliminar: la unidad tiene incidencias registradas.')
