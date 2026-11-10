@@ -11,16 +11,24 @@ listar y crear (GET y POST a /api/incidencias/), y ver y editar
 from rest_framework import viewsets
 
 from .models import Incidencia
+from .permisos import PermisoIncidencias
 from .serializers import IncidenciaSerializer
 
 
 class IncidenciaViewSet(viewsets.ModelViewSet):
-    """CRUD de incidencias (HU-04, HU-10)."""
+    """CRUD de incidencias (HU-04, HU-10).
+
+    Permisos (RNF-03, D7):
+    - Encargado: registra y avanza estados.
+    - Departamento: solo lectura.
+    - Docente: 403 Forbidden.
+    """
 
     # select_related trae el recurso, la unidad y los dos usuarios en la MISMA
     # consulta (son FK). Sin esto, la página haría varias consultas por incidencia.
     queryset = Incidencia.objects.select_related('recurso', 'unidad', 'docente_presente', 'registrada_por')
     serializer_class = IncidenciaSerializer
+    permission_classes = [PermisoIncidencias]
 
     def perform_create(self, serializer):
         """Guarda quién registró la incidencia: el usuario conectado (HU-10).
