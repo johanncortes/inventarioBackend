@@ -128,6 +128,8 @@ class ReservaSerializer(serializers.ModelSerializer):
         if recurso and fecha and hora_inicio and hora_fin:
 
             # 3. Verificar que haya suficientes unidades disponibles (HU-07, HU-08).
+            # unidades_disponibles() usa recurso.obtener_cantidades() de Johann (inventario/models.py)
+            # con la misma regla del front: cuenta unidades si las hay, si no usa los campos.
             # Se excluye la reserva actual al editar (self.instance), para que no
             # choque consigo misma.
             reserva_actual = self.instance
