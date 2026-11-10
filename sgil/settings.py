@@ -69,10 +69,21 @@ WSGI_APPLICATION = 'sgil.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Base de datos MySQL. Cada integrante la crea en su computador con bd/crear_bd.sql.
+# El ENGINE es el de MySQL, pero por debajo se conecta con PyMySQL
+# (ver sgil/__init__.py), así no hay que compilar nada en Windows ni en macOS.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sgil_db',
+        'USER': 'sgil',
+        'PASSWORD': 'sgil123',   # solo es la base local de cada uno
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            # utf8mb4 = el mismo juego de caracteres de la base (tildes, ñ, etc.)
+            'charset': 'utf8mb4',
+        },
     }
 }
 
@@ -99,9 +110,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Español de Chile: los mensajes de error de Django y DRF salen en español.
+LANGUAGE_CODE = 'es-cl'
 
-TIME_ZONE = 'UTC'
+# Hora de Chile. Django guarda las fechas en UTC en la base (USE_TZ = True)
+# y las convierte a esta zona horaria al mostrarlas.
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
