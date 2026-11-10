@@ -36,6 +36,12 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     # Sin 'delete': las incidencias registradas forman parte de la auditoría y no se borran (RNF-06)
     http_method_names = ['get', 'post', 'put', 'patch', 'head', 'options']
 
+    # Filtros, búsqueda y orden (D9, HU-04, HU-10)
+    filterset_fields = ['estado', 'recurso', 'unidad']
+    search_fields = ['descripcion', 'recurso__nombre', 'unidad__numero', 'detalle_afectados']
+    ordering_fields = ['fecha', 'estado']
+    ordering = ['-fecha']  # la más nueva primero por defecto
+
     def perform_create(self, serializer):
         """Guarda quién registró la incidencia: el usuario conectado (HU-10).
 
