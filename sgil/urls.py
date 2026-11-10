@@ -35,5 +35,7 @@ urlpatterns = [
     # ===== Fin Reservas (Martín) =====
 
     # ===== Incidencias (Diego) =====
+    # /api/incidencias/ (incidencias/urls.py)
+    path('api/', include('incidencias.urls')),
     # ===== Fin Incidencias (Diego) =====
 ]

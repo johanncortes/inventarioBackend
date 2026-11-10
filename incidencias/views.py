@@ -1,2 +1,23 @@
-# Vistas de la app incidencias. El ViewSet de incidencias se agrega en D4 y la vista de alertas en D11.
+"""
+Vistas de la app incidencias (Diego).
 
+- IncidenciaViewSet: registrar y consultar incidencias (HU-04, HU-10).
+
+Un ModelViewSet arma en una sola clase las acciones del CRUD:
+listar y crear (GET y POST a /api/incidencias/), y ver y editar
+(GET y PUT/PATCH a /api/incidencias/{id}/). El router las conecta a las URLs
+(incidencias/urls.py).
+"""
+from rest_framework import viewsets
+
+from .models import Incidencia
+from .serializers import IncidenciaSerializer
+
+
+class IncidenciaViewSet(viewsets.ModelViewSet):
+    """CRUD de incidencias (HU-04, HU-10)."""
+
+    # select_related trae el recurso, la unidad y los dos usuarios en la MISMA
+    # consulta (son FK). Sin esto, la página haría varias consultas por incidencia.
+    queryset = Incidencia.objects.select_related('recurso', 'unidad', 'docente_presente', 'registrada_por')
+    serializer_class = IncidenciaSerializer
