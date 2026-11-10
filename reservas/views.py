@@ -150,6 +150,13 @@ class DisponibilidadView(APIView):
         except ValueError as e:
             return Response({'detalle': f'Formato de fecha u hora inválido: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # El horario tiene que tener sentido (misma regla que al crear una reserva).
+        if hora_fin <= hora_inicio:
+            return Response(
+                {'hora_fin': 'La hora de fin debe ser posterior a la de inicio.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Calcular unidades disponibles usando la función de disponibilidad.py.
         disponibles = unidades_disponibles(recurso, fecha, hora_inicio, hora_fin)
 
